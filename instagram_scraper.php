@@ -9,7 +9,7 @@ function crawl($username, $items, $max_id) {
     $url = "http://instagram.com/" . $username . "/media/?&max_id=" . $id;
 
     if (!function_exists('curl_init'))
-        die('cURL is not installed.');
+        die(date("Y-m-d H:i:s") . " - cURL is not installed.\r\n");
 
     $ch = curl_init();
     $curl_options = array(
@@ -19,7 +19,8 @@ function crawl($username, $items, $max_id) {
                         CURLOPT_HEADER => 0,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_TIMEOUT => 10,
-                        CURLOPT_HTTPHEADER => array('Content-type: application/json')
+                        CURLOPT_HTTPHEADER => array('Content-type: application/json'),
+                        CURLOPT_COOKIEFILE => __DIR__ . "/cookies.txt"
                     );
     curl_setopt_array($ch, $curl_options);
     $output = curl_exec($ch);
@@ -27,9 +28,15 @@ function crawl($username, $items, $max_id) {
     $json = json_decode($output, true);
 
     foreach ($json['items'] as $data) {
-        $urlSplit = explode("/", $data['images']['low_resolution']['url']);
-        $name = $urlSplit[count($urlSplit) - 1];
-        $url = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] . "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
+        if($data['type'] == "video") {
+            $url = $data['videos']['standard_resolution']['url'];
+            $name = explode("/", $url);
+            $name = $name[count($name) - 1];
+        } else {
+            $urlSplit = explode("/", $data['images']['low_resolution']['url']);
+            $name = $urlSplit[count($urlSplit) - 1];
+            $url = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] . "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
+        }
 
         array_push($items, array($name, $url, $data['created_time']));
         $lastId = $data['id'];
@@ -50,14 +57,14 @@ function download($downloadList, $username) {
                         CURLOPT_HEADER => 0,
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_TIMEOUT => 10,
-                        CURLOPT_HTTPHEADER => array('Content-type: application/json')
+                        CURLOPT_HTTPHEADER => array('Content-type: application/file')
                     );
     curl_setopt_array($ch, $curl_options);
     $saveto = "./" . $username . "/";
 
     if(!file_exists($saveto)) {
         if (!mkdir($saveto, 0744, true)) {
-            die('Failed to create folder.');
+            die(date("Y-m-d H:i:s") . " - Failed to create folder.\r\n");
         }
     }
 
@@ -67,7 +74,7 @@ function download($downloadList, $username) {
             curl_setopt($ch, CURLOPT_URL, $data[1]);
             $output = curl_exec($ch);
 
-            echo(date("Y-m-d H:i:s") . " - Downloading " . $data[0] . "\n");
+            echo(date("Y-m-d H:i:s") . " - Downloading " . $data[0] . "\r\n");
 
             $fp = fopen($saveto . $data[2] . "_" . $data[0], 'w');
             fwrite($fp, $output);
@@ -77,7 +84,7 @@ function download($downloadList, $username) {
 }
 
 if(!isset($argv[1]) || empty($argv[1])) {
-    die("Usage: php " . $_SERVER["SCRIPT_FILENAME"] . " <username>\n");
+    die("Usage: php " . $_SERVER["SCRIPT_FILENAME"] . " <username>\r\n");
 }
 
 download(crawl($argv[1], array(), 0), $argv[1]);
