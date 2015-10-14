@@ -1,4 +1,7 @@
 <?php
+/**
+*   Crawls through user's page and gets all avaliable images/videos
+*/
 function crawl($username, $items, $max_id) {
     $id = '';
     $lastId = '';
@@ -27,6 +30,7 @@ function crawl($username, $items, $max_id) {
     curl_close($ch);
     $json = json_decode($output, true);
 
+    //Loop over json, retrieve data
     foreach ($json['items'] as $data) {
         if($data['type'] == "video") {
             $url = $data['videos']['standard_resolution']['url'];
@@ -38,17 +42,25 @@ function crawl($username, $items, $max_id) {
             $url = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] . "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
         }
 
+        //Add name, url, and upload date to array
         array_push($items, array($name, $url, $data['created_time']));
+
+        //Instagram only shows one page of images at a given time, saves the id of the last image
         $lastId = $data['id'];
     }
 
+    //Function calls itself if more images are avaliable
     if($json['more_available'] == true){
         return crawl($username, $items, $lastId);
-    }else {
+    } else {
         return $items;
     }
 }
 
+
+/**
+*   Downloads images returned from crawl()
+*/
 function download($downloadList, $username) {
     $ch = curl_init();
     $curl_options = array(
@@ -60,15 +72,17 @@ function download($downloadList, $username) {
                         CURLOPT_HTTPHEADER => array('Content-type: application/file')
                     );
     curl_setopt_array($ch, $curl_options);
+
     $saveto = "./" . $username . "/";
 
+    //Create user's folder
     if(!file_exists($saveto)) {
         if (!mkdir($saveto, 0744, true)) {
             die(date("Y-m-d H:i:s") . " - Failed to create folder.\r\n");
         }
     }
 
-
+    //Download and save image
     foreach ($downloadList as $data) {        
         if(!file_exists($saveto . $data[2] . "_" . $data[0])) {
             curl_setopt($ch, CURLOPT_URL, $data[1]);
