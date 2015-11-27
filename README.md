@@ -1,4 +1,4 @@
-# php-instagram-scraper
+# php-instagram-downloader
 Scrapes images off Instagram
 
 ### Introduction
