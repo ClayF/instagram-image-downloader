@@ -9,7 +9,7 @@ function crawl($username, $items, $max_id) {
     if($max_id > 0)
         $id = $max_id;
 
-    $url = "http://instagram.com/" . $username . "/media/?&max_id=" . $id;
+    $url = "https://www.instagram.com/" . $username . "/media/?&max_id=" . $id;
 
     if (!function_exists('curl_init'))
         die(date("Y-m-d H:i:s") . " - cURL is not installed.\r\n");
@@ -17,7 +17,7 @@ function crawl($username, $items, $max_id) {
     $ch = curl_init();
     $curl_options = array(
                         CURLOPT_URL => $url,
-                        CURLOPT_REFERER => "http://instagram.com",
+                        CURLOPT_REFERER => "https://www.instagram.com",
                         CURLOPT_USERAGENT => "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)",
                         CURLOPT_HEADER => 0,
                         CURLOPT_RETURNTRANSFER => true,
