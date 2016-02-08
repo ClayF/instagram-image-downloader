@@ -1,19 +1,18 @@
 # php-instagram-downloader
-Downloads images off Instagram
 
 ### Introduction
-This thing is not 100% polished. I haven't tested it much. It was just a quick thing I did to download all my Instagram photos with the upload date intact.
-
+Quick script I whipped up to download all my posted images and videos from Instagram.
 Will be looking into speeding up the download times by downloading the files synchronously.
 
-### Usage
+Changes to Instagram's API may break this script. I will try to keep it up to date, but make no guarantees. 
 
+### Usage
 ```sh
 $ php instagram_dl.php <username>
 ```
 
 ### Cookies
-Cookies can be exported from your local browser and included in a file called cookies.txt in the same folder as the script.
+If your account is private, the script will need to be authenticated. Cookies can be exported from your local browser and added to a file called cookies.txt in the same folder as the script.
 
 ##### Example cookies.txt
 ``
@@ -21,7 +20,6 @@ instagram.com	FALSE	/	FALSE	1447966497.46746	sessionid	IGSC29284ebc9306394b234ae
 ``
 
 ### Requirements
-
 This script requires the following installed:
 * PHP
 * cURL
