@@ -104,20 +104,31 @@ function download($downloadList, $username) {
     }
 
     // Download and save image
-    foreach ($downloadList as $data) {        
-        if(!file_exists($saveto . $data[2] . "_" . $data[0])) {
-            curl_setopt($ch, CURLOPT_URL, $data[1]);
+    // Download and save image
+    foreach ($downloadList as $data) {
+        $fileName = $data[0];
+        $imageURL = $data[1];
+        $timestamp = $data[2];
+        
+        // Instagram API sometimes gives weird file names
+        if(strpos($fileName, "ig_cache_key")) {
+            $fileName = explode("?", $fileName)[0];
+        }
+        
+        $fileLocation = $saveto . $timestamp . "_" . $fileName;
+        
+        if(!file_exists($fileLocation)) {
+            curl_setopt($ch, CURLOPT_URL, $imageURL);
             $output = curl_exec($ch);
-			$errorCode = curl_getinfo($ch)['http_code'];
 
             // Check error code
-            if(curl_getinfo($ch)['http_code'] != "200") {
-                echo("[" . $errorCode . "] " . date("Y-m-d H:i:s") . " - Error downloading " . $data[0] . " @ " . $data[1] . "\r\n");
+            if(curl_getinfo($ch)['http_code'] == "200") {
+                echo("[" . curl_getinfo($ch)['http_code'] . "] " .date("Y-m-d H:i:s") . " - Downloading " . $fileName . "\r\n");
             } else {
-                echo("[" . $errorCode . "] " . date("Y-m-d H:i:s") . " - Downloading " . $data[0] . "\r\n");
+                echo("[" . curl_getinfo($ch)['http_code'] . "] " .date("Y-m-d H:i:s") . " - Error downloading " . $fileName . " @ " . $imageURL . "\r\n");
             }
 
-            $fp = fopen($saveto . $data[2] . "_" . $data[0], 'w');
+            $fp = fopen($fileLocation, 'w');
             fwrite($fp, $output);
             fclose($fp);
         }
