@@ -47,15 +47,19 @@ function crawl($username, $items, $max_id) {
             // Some images have URLs of different lengths
 			// "/s1080x1080/" ensures the image is the largest possible
             if(count($urlSplit) == 6) {
-                $imageURL = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] 
+                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
                         . "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/" 
                         . $urlSplit[5];
+			} elseif(count($urlSplit) == 7) {
+                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
+                        . "/" . $urlSplit[3] . "/s1080x1080/" . $urlSplit[5]
+						. "/" . $urlSplit[6];
             } elseif(count($urlSplit) == 8) {
-                $imageURL = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] 
+                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
                         . "/" . $urlSplit[3] . "/" . $urlSplit[4] 
                         . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
             } elseif(count($urlSplit) == 9) {
-                $imageURL = $urlSplit[0] . "/" . $urlSplit[1] . "/" . $urlSplit[2] 
+                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
                         . "/" . $urlSplit[3] . "/" . $urlSplit[4] 
                         . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7] 
                         . "/" . $urlSplit[8];
