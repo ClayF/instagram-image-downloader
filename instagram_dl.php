@@ -29,9 +29,9 @@ function crawl($username, $items, $max_id) {
     curl_close($ch);
     $json = json_decode($response, true);
 
-    if(empty($json['items'])) {
-        die("Invalid username or private.\r\n");
-    }
+    // if(empty($json['items'])) {
+    //     die("Invalid username or private.\r\n");
+    // }
     	
     // Loop over json, get the filename, URL and timestamp
     foreach ($json['items'] as $data) {
