@@ -2,8 +2,6 @@
 
 ### Introduction
 
-## This script is currently nonfunctional.
-
 Quick script I whipped up to download all my posted images and videos from Instagram.
 Will be looking into speeding up the download times by downloading the files synchronously.
 
