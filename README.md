@@ -3,7 +3,7 @@
 ### Introduction
 
 Quick script I whipped up to download all my posted images and videos from Instagram.
-Will be looking into speeding up the download times by downloading the files synchronously.
+Supports concurrent downloads using [RollingCurlX by marcushat](https://github.com/marcushat/RollingCurlX).
 
 Changes to Instagram's API may break this script. I will try to keep it up to date, but make no guarantees. 
 
