@@ -28,54 +28,59 @@ function download($RCX, $username, $max_id = 0) {
                     );
     curl_setopt_array($ch, $curl_options);
     $response = curl_exec($ch);
+	
+	if(empty($response)){
+		die("API returned nothing\r\n");
+	}
+	
     curl_close($ch);
     $json = json_decode($response, true);
 	
-	if(empty($json['items'])) {
-        die("Invalid username, private account or API error.\r\n");
-    }
-    	
-    // Loop over json, get the filename, URL and timestamp
-    foreach ($json['items'] as $data) {
-        if($data['type'] == "video") {
-            $imageURL = $data['videos']['standard_resolution']['url'];
-            $name = explode("/", $imageURL);
-            $name = $name[count($name) - 1];
-        } else {
-            $urlSplit = explode("/",
-                    $data['images']['standard_resolution']['url']);
-            $name = $urlSplit[count($urlSplit) - 1];
-            
-            // Some images have URLs of different lengths
-			// "/s1080x1080/" ensures the image is the largest possible
-            if(count($urlSplit) == 6) {
-                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
-                        . "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/" 
-                        . $urlSplit[5];
-			} elseif(count($urlSplit) == 7) {
-                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
-                        . "/" . $urlSplit[3] . "/s1080x1080/" . $urlSplit[5]
-						. "/" . $urlSplit[6];
-            } elseif(count($urlSplit) == 8) {
-                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
-                        . "/" . $urlSplit[3] . "/" . $urlSplit[4] 
-                        . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
-            } elseif(count($urlSplit) == 9) {
-                $imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
-                        . "/" . $urlSplit[3] . "/" . $urlSplit[4] 
-                        . "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7] 
-                        . "/" . $urlSplit[8];
-            } else {
-				$imageURL = $data['images']['standard_resolution']['url'];
+    if($json['status'] == "ok" && !empty($json['items'])) {	
+		// Loop over json, get the filename, URL and timestamp
+		foreach ($json['items'] as $data) {
+			if($data['type'] == "video") {
+				$imageURL = $data['videos']['standard_resolution']['url'];
+				$name = explode("/", $imageURL);
+				$name = $name[count($name) - 1];
+			} else {
+				$urlSplit = explode("/",
+						$data['images']['standard_resolution']['url']);
+				$name = $urlSplit[count($urlSplit) - 1];
+				
+				// Some images have URLs of different lengths
+				// "/s1080x1080/" ensures the image is the largest possible
+				if(count($urlSplit) == 6) {
+					$imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
+							. "/" . $urlSplit[3] . "/" . $urlSplit[4] . "/" 
+							. $urlSplit[5];
+				} elseif(count($urlSplit) == 7) {
+					$imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
+							. "/" . $urlSplit[3] . "/s1080x1080/" . $urlSplit[5]
+							. "/" . $urlSplit[6];
+				} elseif(count($urlSplit) == 8) {
+					$imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
+							. "/" . $urlSplit[3] . "/" . $urlSplit[4] 
+							. "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7];
+				} elseif(count($urlSplit) == 9) {
+					$imageURL = $urlSplit[0] . "//" . $urlSplit[2] 
+							. "/" . $urlSplit[3] . "/" . $urlSplit[4] 
+							. "/s1080x1080/" . $urlSplit[6] . "/" . $urlSplit[7] 
+							. "/" . $urlSplit[8];
+				} else {
+					$imageURL = $data['images']['standard_resolution']['url'];
+				}
 			}
-        }
 
-        // Add image to download queue
-		$RCX->addRequest($imageURL, null, 'save', ['fileName' => $name, 'created_time' => $data['created_time'], 'username' => $username]);
+			// Add image to download queue
+			$RCX->addRequest($imageURL, null, 'save', ['fileName' => $name, 'created_time' => $data['created_time'], 'username' => $username]);
 
-        // Instagram only shows one page of images at a given time, saves the id of the last image
-        $lastId = $data['id'];
-    }
+			// Instagram only shows one page of images at a given time, saves the id of the last image
+			$lastId = $data['id'];
+		}
+	} else {
+		die("Invalid username or private account.\r\n");
+	}
 
     // Recurse if more images are avaliable
     if($json['more_available'] == true){
