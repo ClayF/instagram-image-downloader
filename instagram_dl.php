@@ -5,38 +5,38 @@ include("includes/rollingcurlx.class.php");
 *   Crawls through user's page and downloads all avaliable images/videos
 */
 function download($RCX, $username, $max_id = 0) {
-    $id = '';
-    $lastId = '';
+	$id = '';
+	$lastId = '';
 
-    if ($max_id > 0) {
-        $id = $max_id;
-    }
+	if ($max_id > 0) {
+		$id = $max_id;
+	}
 
-    $userURL = "https://www.instagram.com/" . $username . "/media/?&max_id=" . $id;
+	$userURL = "https://www.instagram.com/" . $username . "/media/?&max_id=" . $id;
 
-    $ch = curl_init();
-    $curl_options = array(
-                        CURLOPT_URL => $userURL,
-                        CURLOPT_REFERER => "https://www.instagram.com",
-                        CURLOPT_USERAGENT => "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)",
-                        CURLOPT_HEADER => 0,
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_TIMEOUT => 10,
-                        CURLOPT_HTTPHEADER => array('Content-type: application/json'),
-                        CURLOPT_COOKIEFILE => __DIR__ . "/cookies.txt",
-                        CURLOPT_SSL_VERIFYPEER => false
-                    );
-    curl_setopt_array($ch, $curl_options);
-    $response = curl_exec($ch);
+	$ch = curl_init();
+	$curl_options = array(
+						CURLOPT_URL => $userURL,
+						CURLOPT_REFERER => "https://www.instagram.com",
+						CURLOPT_USERAGENT => "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)",
+						CURLOPT_HEADER => 0,
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_TIMEOUT => 10,
+						CURLOPT_HTTPHEADER => array('Content-type: application/json'),
+						CURLOPT_COOKIEFILE => __DIR__ . "/cookies.txt",
+						CURLOPT_SSL_VERIFYPEER => false
+					);
+	curl_setopt_array($ch, $curl_options);
+	$response = curl_exec($ch);
 	
 	if(empty($response)){
 		die("API returned nothing\r\n");
 	}
 	
-    curl_close($ch);
-    $json = json_decode($response, true);
+	curl_close($ch);
+	$json = json_decode($response, true);
 	
-    if($json['status'] == "ok" && !empty($json['items'])) {	
+	if($json['status'] == "ok" && !empty($json['items'])) {	
 		// Loop over json, get the filename, URL and timestamp
 		foreach ($json['items'] as $data) {
 			if($data['type'] == "video") {
@@ -82,30 +82,30 @@ function download($RCX, $username, $max_id = 0) {
 		die("Invalid username or private account.\r\n");
 	}
 
-    // Recurse if more images are avaliable
-    if($json['more_available'] == true){
-        return download($RCX, $username, $lastId);
-    } else {
+	// Recurse if more images are avaliable
+	if($json['more_available'] == true){
+		return download($RCX, $username, $lastId);
+	} else {
 		$RCX->setOptions([array(
-                        CURLOPT_REFERER => "http://instagram.com",
-                        CURLOPT_USERAGENT => "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)",
-                        CURLOPT_HEADER => 0,
-                        CURLOPT_RETURNTRANSFER => true,
-                        CURLOPT_TIMEOUT => 10,
-                    )]);
+						CURLOPT_REFERER => "http://instagram.com",
+						CURLOPT_USERAGENT => "User-Agent: Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6 (.NET CLR 3.5.30729)",
+						CURLOPT_HEADER => 0,
+						CURLOPT_RETURNTRANSFER => true,
+						CURLOPT_TIMEOUT => 10,
+					)]);
 		$RCX->execute();
 	}
 }
 
 function save($response, $url, $request_info, $user_data, $time) {
-    $saveto = "./" . $user_data['username'] . "/";
+	$saveto = "./" . $user_data['username'] . "/";
 
-    // Create user's folder
-    if(!file_exists($saveto)) {
-        if (!mkdir($saveto, 0744, true)) {
-            die(date("Y-m-d H:i:s") . " - Failed to create folder.\r\n");
-        }
-    }
+	// Create user's folder
+	if(!file_exists($saveto)) {
+		if (!mkdir($saveto, 0744, true)) {
+			die(date("Y-m-d H:i:s") . " - Failed to create folder.\r\n");
+		}
+	}
 	
 	$fileName = $user_data['fileName'];
 	$timestamp = $user_data['created_time'];
@@ -133,11 +133,11 @@ function save($response, $url, $request_info, $user_data, $time) {
 }
 
 if(!isset($argv[1]) || empty($argv[1])) {
-    die("Usage: php " . $_SERVER["SCRIPT_FILENAME"] . " <username>\r\n");
+	die("Usage: php " . $_SERVER["SCRIPT_FILENAME"] . " <username>\r\n");
 }
 
 if (!function_exists('curl_init')) {
-    die(date("Y-m-d H:i:s") . " - cURL is not installed.\r\n");
+	die(date("Y-m-d H:i:s") . " - cURL is not installed.\r\n");
 }
 
 download(new RollingCurlX(10), $argv[1], 0);
